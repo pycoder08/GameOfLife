@@ -1,0 +1,6 @@
+# Add your output tests in place of these examples (# is a comment)
+# Test Name, Input, Output, Test Type (exact, match, regex)
+# Exact,"Test input","Test output",exact
+# Match,"Test input line 1
+#Test input line 2","Test output line 1
+#Test output line 2",match
