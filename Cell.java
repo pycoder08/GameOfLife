@@ -23,6 +23,9 @@ Cell
 + setX(x: int): boolean
 + setY(y: int): boolean
 + setState(state: int): boolean
++ toString(): String
++ equals(other: Cell): boolean
++ isAlive(): boolean
 -----------------------------------------
 */
 
@@ -111,7 +114,13 @@ public class Cell // don't forget to rename here and rename the file too!
 	}
 
 	/***** MUTATORS *****/
-
+	/**	
+	 * Sets all the instance variables for a cell
+	 * @param x x coordinate of the cell
+	 * @param y y coordinate of the cell
+	 * @param state state of the cell (0 = dead, 1 = alive)
+	 * @return true if all three values are valid, false otherwise
+	 */
 	public boolean setAll(int x, int y, int state)
 	{
 		this.setState(state);
@@ -122,6 +131,11 @@ public class Cell // don't forget to rename here and rename the file too!
 		return combinedValid; // returns true if all three values are valid, false otherwise
 	}
 	
+	/**
+	 * Sets the x coordinate of the cell
+	 * @param x x coordinate of the cell
+	 * @return true if the x coordinate is valid, false otherwise
+	 */
 	public boolean setX(int x)
 	{
 		if (x < 0)
@@ -135,6 +149,11 @@ public class Cell // don't forget to rename here and rename the file too!
 		}
 	}
 
+	/**
+	 * Sets the y coordinate of the cell
+	 * @param y y coordinate of the cell
+	 * @return true if the y coordinate is valid, false otherwise
+	 */
 	public boolean  setY(int y)
 	{
 		if (y < 0)
@@ -148,6 +167,11 @@ public class Cell // don't forget to rename here and rename the file too!
 		}
 	}
 
+	/**
+	 * Sets the state of the cell
+	 * @param state state of the cell (0 = dead, 1 = alive)
+	 * @return true if the state is valid, false otherwise
+	 */
 	public boolean setState(int state)
 	{
 		if (state == 0 || state == 1)
@@ -187,6 +211,10 @@ no newline at the end
 
 	/***** HELPER METHODS *****/
 
+	/**
+	 * Check if the cell is alive
+	 * @return true if the cell is alive, false otherwise
+	 */
 	public boolean isAlive()
 	{
 		return this.state == 1;

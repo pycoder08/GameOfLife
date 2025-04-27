@@ -73,6 +73,7 @@ public class Board
     {
         this.width = original.getWidth(); // set width to the original board's width
         this.height = original.getHeight(); // set height to the original board's height
+        this.board = deepCopyBoard(original.getBoard()); // set board to the original board's Cell[][] array
     }
 
 	/***** ACCESSORS *****/
@@ -191,7 +192,7 @@ public class Board
             {
                 if (board[row][col].getState() == 1) 
                 {
-                    outputString += "▣  ";
+                    outputString += "■  ";
                 } 
                 else 
                 {
@@ -211,13 +212,26 @@ public class Board
      * Checks if two Board objects are equal
      * @param other Board object to compare to
      */
-    public boolean equals(Board other)
+    public boolean equals(Board other) 
     {
-        return this.width == other.width && this.height == other.height && this.board.equals(other.board); // check if the width, height, and board are equal
+        if (this.width != other.width || this.height != other.height) return false; // check if the dimensions are equal before comparing the contents of the boards
+        
+        // Compare the states of each cell in the boards
+        for (int r = 0; r < height; r++) 
+        {
+            for (int c = 0; c < width; c++) 
+            {
+                if (this.board[r][c].getState() != other.board[r][c].getState())
+                    return false;
+            }
+        }
+        return true;
     }
+    
     /***** HELPER METHODS *****/
 
-    private Cell[][] initializeDefaultBoard() {
+    public Cell[][] initializeDefaultBoard() 
+    {
         int rows = this.height;
         int cols = this.width;
         Cell[][] tempBoard = new Cell[rows][cols];
@@ -234,6 +248,9 @@ public class Board
         Cell[][] tempBoard = this.initializeDefaultBoard(); // Create a 2D array of Cell objects with the specified number of rows and columns
         switch (boardType) // Use a switch statement to determine the type of board to initialize
         {
+            case 0: // Blank
+                // Do nothing and keep the board blank
+                break;
             case 1: // Glider
                 // Initialize a glider pattern
                 tempBoard[1][0].setState(1);
@@ -248,9 +265,21 @@ public class Board
                 tempBoard[1][1].setState(1);
                 tempBoard[1][2].setState(1);
                 break;
-            case 3: // Blank
-                // Do nothing and keep the board blank
+            case 3: // Lightweight spaceship
+
+                // Set the first 5 cells in the second row to alive EXCEPT the first one
+                for (int col = 1; col < 5; col++) 
+                {
+                    tempBoard[1][col].setState(1); 
+                }
+                tempBoard[2][0].setState(1); // Set the cell in the third row and first column to alive
+                tempBoard[2][4].setState(1); // Set the cell in the third row and fifth column to alive
+                tempBoard[3][4].setState(1); // Set the cell in the fourth row and fifth column to alive
+                tempBoard[4][1].setState(1); // Set the cell in the fifth row and second column to alive
+                tempBoard[4][3].setState(1); // Set the cell in the fifth row and fourth column to alive
                 break;
+                
+                
             default:
                 // Print an error message for invalid board type and shut down
                 System.err.println("Invalid board type: " + boardType + ", shutting down..."); 
@@ -261,13 +290,42 @@ public class Board
 
     public void printBoard()
     {
+        // We print the labels for each column at the top of the board
+        // We will need to account for the fact that indexes start at 0, so we add one to the width value if necessary
+
+        String[] colLabels = new String[this.width + 2]; // Create an array to hold the row labels
+        for (int i = 0; i < 10; i++)
+        {
+            colLabels[i] = i + "  "; // Initialize the row labels with the row numbers
+            System.out.print(colLabels[i]);
+        }
+
+        for (int i = 10; i < this.width + 1; i++)
+        {
+            colLabels[i] = (i) + " "; // Use one space instead of two for double digits
+            System.out.print(colLabels[i]);
+        }
+
+        System.out.println(); // Print a new line after the row labels
+
+
+
         for (int row = 0; row < this.height; row++)
         {
+
+            if (row < 9) // For single digit numbers, use two space
+            {
+                System.out.print((row + 1) + "  "); 
+            }
+            else // For double digit numbers, use one space
+            {
+                System.out.print((row + 1) + " ");
+            }
         for (int col = 0; col < this.width; col++)
         {
             if (board[row][col].getState() == 1) // Check if the cell is alive (state = 1)
             {
-            System.out.print("▣  "); // Print a filled square for alive cells
+            System.out.print("■  "); // Print a filled square for alive cells
             }
             else
             {
@@ -301,16 +359,19 @@ public class Board
         return copy;
     }
 
-    public void updateBoard() throws InterruptedException // We need to declare this exception in case the Thread.sleep() method gives an interrupted exception
+    /**
+     * Updates the board to the next generation based on the rules of Conway's Game of Life.
+     * @paramm seconds
+     * @throws InterruptedException if the thread is interrupted during sleep
+     */
+    public void updateBoard(double seconds) throws InterruptedException // We need to declare this exception in case the Thread.sleep() method gives an interrupted exception
     {
-        Cell[][] tempBoard = new Cell[this.height][this.width]; // Deep copy the board to a temporary array
-        tempBoard = this.deepCopyBoard(this.board); // Copy the current state of the board to the temporary array
+        Cell[][] tempBoard; // Deep copy the board to a temporary array
+        tempBoard = this.deepCopyBoard(this.board); 
 
         int rows = this.height; // Get the number of rows from the board's height
         int cols = this.width; // Get the number of columns from the board's width
-        //this.printBoard(); // Print the current state of the board
-        Thread.sleep(1000); // Pause for 1 second to create a delay between generations
-  
+        Thread.sleep((int)(seconds * 1000)); // Pause for however many seconds the user specifies
         for (int currentRow = 0; currentRow < rows; currentRow++)
         {
           for (int currentCol = 0; currentCol < cols; currentCol++)
@@ -361,6 +422,6 @@ public class Board
           }
         }
 
-        this.board = deepCopyBoard(tempBoard); // Update the board with the new state
+        this.board = deepCopyBoard(tempBoard); // Update the board with the new state after all the checks are complete
     }
 }
